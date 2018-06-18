@@ -21,6 +21,8 @@ var TokenPayloadCreator = function()
 	
 	self.createPayloadFromDecodedToken = function(decoded)
 	{
+		decoded = decoded.payload;
+		console.log(decoded);
 		var payload = new TokenPayLoad()
 		payload.timeCreated = decoded.timeCreated ;
 		payload.timeExpires = decoded.timeExpires; 
@@ -28,6 +30,17 @@ var TokenPayloadCreator = function()
 		payload.clientType = decoded.clientType;
 		payload.clientIP = decoded.clientIP;
 		payload.requestHeaders= decoded.requestHeaders;
+		payload.timeLeft = function()
+		{
+			var now = new Date().getTime();
+			
+			return payload.timeExpires-now;
+			
+		}();
+		payload.isExpired = function()
+		{
+			return payload.timeLeft<0;
+		}()
 		return payload;
 	}
 }

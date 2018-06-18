@@ -1,9 +1,9 @@
 var crypto = require('crypto');
-
 var UserModel = require('../mongooseModels/User');
 var SaltModel = require('../mongooseModels/Salt');
 var UserFactory = require('../factory/UserFactory');
 var SaltFactory = require('../factory/SaltFactory');
+var ErrorCodes = require('../utils/ErrorCodes');
 
 function UserRepository()
 {
@@ -16,21 +16,23 @@ function UserRepository()
 			try
 			{
 				
-				crypto.pbkdf2(newUser.motDePasse,newSalt.value,10000,512,function(err,encryptedPwd)
+				crypto.pbkdf2(newUser.motDePasse,newSalt.value,10000,512,'sha512',function(err,encryptedPwd)
 																		{
+																			
 																			if(err)
 																				reject("--"+err)
 																			if(encryptedPwd)
 																			{
+																				
 																				newUser.motDePasse = encryptedPwd;
 																				accept(newUser);
 																			}
-																			reject ("pwd Encryption failed");
+																			reject (ErrorCodes.pwdEncryptionFailed);
 																																					
 																		});
 			}
 			catch(err){
-				reject(err)
+				reject(err);
 			}
 		})
 		
@@ -42,6 +44,7 @@ function UserRepository()
 		{
 			try
 			{
+			
 				UserModel.create(newUser,function(err,res)
 				{
 					if(err)
@@ -50,7 +53,7 @@ function UserRepository()
 					if(res)
 						accept(res);
 					else 
-					  reject("failed to add record");
+					  reject(ErrorCodes.addingUserFailed);
 					
 				});
 			}
@@ -61,6 +64,14 @@ function UserRepository()
 		})
 	}
 	
+	
+	self.getUserCount = function(queryObject)
+	{
+		if(!queryObject)
+		{
+			return UserModel.count();			
+		}
+	}
 	self.add = function(newUser)
 	{
 		return new Promise(function(resolve,refuse)
@@ -72,17 +83,25 @@ function UserRepository()
 				
 				performAddSaltToPwd(newUser,newSalt)
 				.then(performAddUser,refuse)
-				.then(function(addedUser){
-					newSalt.user_id = addedUser.id;
-					SaltModel.create(newSalt,function(err,res){
-						
-						if(err)
-							refuse(err)
-						if(res)
-							resolve(userFactory.createFromGivenAttributes(addedUser));
-						else
-							refuse("failed to save salt for user_id:"+newSalt.user_id);
-					});
+				.then(function(addedUser){	
+					try
+					{
+					
+						newSalt.user_id = addedUser.id;
+						SaltModel.create(newSalt,function(err,res){
+							
+							if(err)
+								refuse(err)
+							if(res)
+								resolve(userFactory.createFromGivenAttributes(addedUser));
+							else
+								refuse("failed to save salt for user_id:"+newSalt.user_id);
+						});
+					}
+					catch(error)
+					{
+						refuse(error);
+					}
 				}
 				,refuse);
 			}
@@ -95,11 +114,43 @@ function UserRepository()
 		
 	}
 	
+	
+	self.findByUsernameOrEmail = function(queryObjects)
+	{
+		return new Promise(function(resolve,reject)
+		{
+			try
+			{
+				var userFactory = new UserFactory();
+			
+				var query = {$or:queryObjects};
+				console.log(query);
+				UserModel.findOne(query,function(err,res)
+				{
+					
+					if(err)
+						return  reject(err);
+					
+					if(res)
+						return resolve(userFactory.createFromGivenAttributes(res));
+					else
+						return  resolve(ErrorCodes.userNotFound);
+					
+				});
+			}
+			catch(err)
+			{
+				return  reject(err);
+			}
+		});
+	}
+	
 	self.findByUsername = function(givenUserName)
 	{
 		return new Promise(function(accept,reject){
 			try
-			{var userFactory = new UserFactory();
+			{
+				var userFactory = new UserFactory();
 			
 				 UserModel.findOne({userName:givenUserName},function(err,res)
 				  {
@@ -110,8 +161,9 @@ function UserRepository()
 					if(res)
 						accept(userFactory.createFromGivenAttributes(res));
 					else
-						accept("not found")
+						accept(ErrorCodes.userNotFound)
 				  });
+				
 			}
 			catch(err)
 			{
@@ -120,6 +172,33 @@ function UserRepository()
 		});
 	}
 	
+	
+	self.findByEmail = function(givenEmail)
+	{
+		return new Promise(function(accept,reject){
+			try
+			{
+				var userFactory = new UserFactory();
+			
+				 UserModel.findOne({email:givenEmail},function(err,res)
+				  {
+					if(err)
+					{
+					  reject(err);
+					}
+					if(res)
+						accept(userFactory.createFromGivenAttributes(res));
+					else
+						accept(ErrorCodes.userNotFound)
+				  });
+				
+			}
+			catch(err)
+			{
+				reject(err);
+			}
+		});
+	}
 	var findByUsernameForAuthentication = function(givenUserName)
 	{
 		return new Promise(function(accept,reject){
@@ -135,7 +214,7 @@ function UserRepository()
 					if(res)
 						accept(res);
 					else
-						accept("notFound")
+						accept(ErrorCodes.userNotFound);
 				  });
 			}
 			catch(err)
@@ -176,16 +255,16 @@ function UserRepository()
 			{
 				findByUsernameForAuthentication(userName).then(function(foundUser)
 				{
-						if(foundUser == "notFound")
+						if(foundUser === ErrorCodes.userNotFound)
 						{	
-							accept(foundUser);
+							accept(foundUser); 
 							return;
 						}
 						
 						findSaltByUserId(foundUser.id).then(function(foundSalt)
 						{
 							
-							crypto.pbkdf2(passwordToValidate,foundSalt.value,10000,512,function(err,hashedResultToValidate)
+							crypto.pbkdf2(passwordToValidate,foundSalt.value,10000,512,'sha512',function(err,hashedResultToValidate)
 							{
 								if(err)
 									reject(err);
@@ -196,7 +275,7 @@ function UserRepository()
 									accept(userFactory.createFromGivenAttributes(foundUser))
 							
 
-								reject("authentication failed");
+								reject(ErrorCodes.authenticationFailed);
 																										
 							});
 						},reject);

@@ -23,12 +23,11 @@ function TokenValidator(newSecret,request,response)
 				
 				var token = req.body.token || req.query.token || req.headers['x-access-token'];
 				if(token)
-				{			
-					accept(token);
+				{	
+						 accept(token);
 				}
 				else
 				{
-					console.log("found no token")
 					reject();
 				}
 			}
@@ -46,8 +45,7 @@ function TokenValidator(newSecret,request,response)
 		
 		var payload = tokenCreator.createPayloadFromRequest(self.request);
 		payload.user = user;
-		//console.log(payload);
-		//return res.json(payload);
+
 		var result = {};
 		result.payload = payload;
 		var stringPayload = JSON.stringify(payload);
@@ -62,12 +60,14 @@ function TokenValidator(newSecret,request,response)
 	
 	self.validate = function(token)
 	{
+		
 		return new Promise(function(accept,reject)
 		{
-			 jwt.verify(token, app.get(secret), function(err, decoded) 
-			{      
+			 jwt.verify(token, secret, function(err, decoded) 
+			{      console.log("toekn verified")
 				  if (err) 
 				  {
+					  console.log(err);
 					reject(err);
 				  }
 				  else 
