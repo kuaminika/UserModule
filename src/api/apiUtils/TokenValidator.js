@@ -64,7 +64,7 @@ function TokenValidator(newSecret,request,response)
 		return new Promise(function(accept,reject)
 		{
 			 jwt.verify(token, secret, function(err, decoded) 
-			{      console.log("toekn verified")
+			{      console.log("toekn verified");
 				  if (err) 
 				  {
 					  console.log(err);

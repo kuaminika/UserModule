@@ -11,7 +11,7 @@ function initCounter()
 	console.log("initiating counter");
 	
 }
-var raw = formEntryInstaces[5]
+var raw = formEntryInstaces[1]
   
   console.log("user count");
   repository.getUserCount().then(function(amount)
@@ -24,9 +24,10 @@ var raw = formEntryInstaces[5]
   
   
  console.log("about to insert user"); 
-// repository.add(raw).then(Handler.handleSuccess,Handler.handleError);
 
-repository.findByUsername(raw.userName).then(Handler.handleSuccess,Handler.handleError);
+ //repository.add(raw).then(Handler.handleSuccess,Handler.handleError);
+ repository.findAllUsers().then(Handler.handleSuccess,Handler.handleError);
+//repository.findByUsername(raw.userName).then(Handler.handleSuccess,Handler.handleError);
 
 //repository.findByUsername(raw.userName+2).then(Handler.handleSuccess,Handler.handleError);
   

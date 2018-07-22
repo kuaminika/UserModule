@@ -12,7 +12,11 @@ var UserService = function()
 		var userFactory = new UserFactory();
 		return userFactory.createBlank();		
 	} 
-		
+	self.remove = function( query)
+	{
+		console.log(query)
+		return repository.remove(query);
+	}
 	self.add = function(newItem)
 	{		
 		return repository.findByUsername(newItem.userName).
@@ -31,7 +35,38 @@ var UserService = function()
 					return Promise.reject( "email:"+newItem.email+" already exists");
 				});
 	}
-	
+	self.updateUser = function(updatedUser)
+	{
+		return	repository.updateUsr(updatedUser);
+	}
+	self.getAllUsers = function(query)
+	{
+		return repository.findAllUsers(query).then(function(allUsers)
+		{
+			try
+			{
+				var userFactory = new UserFactory();
+				var result = [];
+				var currentUser ;
+					
+				for(var i=0;i<allUsers.length;i++)
+				{
+				
+					currentUser = allUsers [i];
+				
+					result[i]=userFactory.createFromGivenAttributes(currentUser);
+				}
+				
+				return Promise.resolve(result);
+			}
+			catch(error)
+			{
+				console.log(error);
+				return Promise.reject(error);
+			}
+		})
+		
+	}
 	self.recoverWithEmailOrUsr = function(searchItem)
 	{
 		return repository.findByUsername(searchItem).

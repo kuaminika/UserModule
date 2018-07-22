@@ -64,6 +64,31 @@ function UserRepository()
 		})
 	}
 	
+	self.updateUsr = function(user)
+	{
+		/*console.log("about to update (0)",user);
+		user = JSON.parse(user);
+		console.log("user.id",user.id);*/
+		return new Promise(function(acc,rej)
+		{
+			try
+			{
+				var query = {id:user.id};
+				UserModel.update(query,user,{upsert:false},function(err,res){
+					if(err)
+					{
+						rej(err);
+						return;
+					}
+					acc(res);
+				});
+			}
+			catch(error)
+			{
+				rej(error);
+			}
+		});
+	}
 	
 	self.getUserCount = function(queryObject)
 	{
@@ -113,7 +138,30 @@ function UserRepository()
 		});	
 		
 	}
+		function queryResltRection(err,res)
+		{
+			if(err)
+			{
+				console.log("theres an error");
+				return Promise.reject(err);
+			}
+			
+			console.log("theres no error");
+			return Promise.resolve(res);
+		}
+		
+	self.remove = function(query)
+	{
+		
+		query = query ||{};
 	
+		return UserModel.deleteOne(query,queryResltRection);
+	}
+	self.findAllUsers = function(query)
+	{
+		query = query ||{};
+		return UserModel.find(query)
+	}
 	
 	self.findByUsernameOrEmail = function(queryObjects)
 	{

@@ -23,7 +23,7 @@ var UserAPI = function(router)
 					
 					var token = tokenService.getTokenAuthenticatedUser(req,res,result);
 					
-					handler.success({token:token,user:result})
+					handler.success({token:token,user:result});
 				},handler.error);
 			}
 			catch(error)
@@ -37,7 +37,7 @@ var UserAPI = function(router)
 			var handler = new APIHandler(req,res);
 			try
 			{
-				//console.log(req);
+				console.log(req.body);
 				var newUsr  = req.body.newUser
 				newUsr.memberSince = new Date();
 				service.add(newUsr).then(function(result)
@@ -57,6 +57,14 @@ var UserAPI = function(router)
 				handler.error(error);	
 			}
 		},
+		updateUser:function(req,res)
+		{
+				console.log(req.body);
+			var handler = new APIHandler(req,res);
+			var updatedUsr  = req.body.updatedUser;
+			service.updateUser(updatedUsr).then(handler.success,handler.error);
+		}
+		,
 		getBlankUser : function(req,res)
 		{
 			
@@ -90,6 +98,22 @@ var UserAPI = function(router)
 			{
 				handler.error(error);	
 			}
+		},
+		getAllUsers: function(req,res)
+		{
+			
+			var handler = new APIHandler(req,res);
+			var query= {};
+			service.getAllUsers(query).then(handler.success,handler.error);
+		},
+		removeById: function(req,res)
+		{
+			
+			var handler = new APIHandler(req,res);
+			var query= {};
+			var id  = req.body.id;
+			query.id = id;
+			service.remove(query).then(handler.success,handler.error);
 		}
 	}
 	
@@ -102,7 +126,10 @@ var UserAPI = function(router)
 		router.get('/user/autenticate/:usr/:pwd',functionalities.authenticate);	
 		router.get('/user/registrationFormDetails/',functionalities.getBlankUser);	
 		router.post('/user/registerUser/',functionalities.registerUser);
+		router.post('/user/update/',functionalities.updateUser);
+		router.get('/user/all/',functionalities.getAllUsers);
 
+		router.post('/user/remove',functionalities.removeById);	
 		router.post('/secure/user/loadProfile',functionalities.loadProfile);	
 	}
 	

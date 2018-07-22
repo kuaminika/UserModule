@@ -15,11 +15,16 @@ var APIHandler = function(request,response){
 			result.code = code;
 			
 		}
+		
+		console.log("responding success to request");
 		return  response.json(result);
 	}
 	this.error= function(err)
 	{
-		return response.status(500).json({message:err});
+		
+		console.log("theres an error");
+		console.log(err);
+		return response.status(500).json({errprMessage:err});
 	}
 };
 
