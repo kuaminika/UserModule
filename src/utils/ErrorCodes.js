@@ -1,21 +1,25 @@
 var ErrorCodes = {
 	userNotFound :{
-		codeNumber:001,
+		code:001,
 		messsage:"user not found"
 	},
 	pwdEncryptionFailed:{
-		codeNumber:002,
+		code:002,
 		messsage:"user not found"
 	},
 	addingUserFailed:{
-		codeNumber:003,
+		code:003,
 		messsage:"failed to add user"
 	},
 	authenticationFailed:{
-		codeNumber:004,
+		code:004,
 		messsage:"authentication failed"
-	}
-	
+	},
+	userExists:{code:5,message:"user already exists"},
+	noSession:{code:71,message:"need to login"},
+	loginFailed:{code:55,message:"login failed"},
+	expiredSession: {code:88,message:"session is expired"},
+	unknownError: {code:0,message:"unknown error occured"}
 }
 
   module.exports= ErrorCodes;
