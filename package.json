@@ -1,14 +1,25 @@
 {
-  "name": "SableAssentAPI",
+  "name": "usermodule",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/app.js",
+  "description": "This is simply a node API Service to authenticate ,register, and update users. Feedback is truly appreciated",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neagakkod/UserModule.git"
+  },
+  "author": "konbit.kuaminika",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/neagakkod/UserModule/issues"
+  },
+  "homepage": "https://github.com/neagakkod/UserModule#readme",
   "dependencies": {
-    "mongoose": "^4.13.4"
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1",
+    "nodemailer": "^6.9.13"
   }
 }
