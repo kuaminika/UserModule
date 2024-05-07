@@ -45,17 +45,15 @@ function UserRepository()
 			try
 			{
 			
-				UserModel.create(newUser,function(err,res)
-				{
-					if(err)
-						reject(err);
+				UserModel.create(newUser).then(function(res)
+				{				
 					
 					if(res)
 						accept(res);
 					else 
 					  reject(ErrorCodes.addingUserFailed);
 					
-				});
+				}).catch(reject);
 			}
 			catch(error)
 			{
@@ -66,22 +64,12 @@ function UserRepository()
 	
 	self.updateUsr = function(user)
 	{
-		/*console.log("about to update (0)",user);
-		user = JSON.parse(user);
-		console.log("user.id",user.id);*/
 		return new Promise(function(acc,rej)
 		{
 			try
 			{
 				var query = {id:user.id};
-				UserModel.update(query,user,{upsert:false},function(err,res){
-					if(err)
-					{
-						rej(err);
-						return;
-					}
-					acc(res);
-				});
+				UserModel.update(query,user,{upsert:false}).then(acc,rej);
 			}
 			catch(error)
 			{
@@ -113,15 +101,14 @@ function UserRepository()
 					{
 					
 						newSalt.user_id = addedUser.id;
-						SaltModel.create(newSalt,function(err,res){
+						SaltModel.create(newSalt).then(function(res){
 							
-							if(err)
-								refuse(err)
+							
 							if(res)
 								resolve(userFactory.createFromGivenAttributes(addedUser));
 							else
 								refuse("failed to save salt for user_id:"+newSalt.user_id);
-						});
+						}).catch(refuse);
 					}
 					catch(error)
 					{
@@ -173,7 +160,7 @@ function UserRepository()
 			
 				var query = {$or:queryObjects};
 				console.log(query);
-				UserModel.findOne(query,function(err,res)
+				UserModel.findOne(query).then(function(res)
 				{
 					
 					if(err)
@@ -184,7 +171,8 @@ function UserRepository()
 					else
 						return  resolve(ErrorCodes.userNotFound);
 					
-				});
+				})
+				.catch(reject)
 			}
 			catch(err)
 			{
@@ -200,17 +188,14 @@ function UserRepository()
 			{
 				var userFactory = new UserFactory();
 			
-				 UserModel.findOne({userName:givenUserName},function(err,res)
+				 UserModel.findOne({userName:givenUserName}).then(function(res)
 				  {
-					if(err)
-					{
-					  reject(err);
-					}
+					
 					if(res)
 						accept(userFactory.createFromGivenAttributes(res));
 					else
 						accept(ErrorCodes.userNotFound)
-				  });
+				  }).catch(reject);
 				
 			}
 			catch(err)
@@ -228,17 +213,14 @@ function UserRepository()
 			{
 				var userFactory = new UserFactory();
 			
-				 UserModel.findOne({email:givenEmail},function(err,res)
+				 UserModel.findOne({email:givenEmail}).then(function(res)
 				  {
-					if(err)
-					{
-					  reject(err);
-					}
+					 
 					if(res)
 						accept(userFactory.createFromGivenAttributes(res));
 					else
 						accept(ErrorCodes.userNotFound)
-				  });
+				  }).catch(reject);
 				
 			}
 			catch(err)
@@ -253,17 +235,14 @@ function UserRepository()
 			try
 			{
 			
-				 UserModel.findOne({userName:givenUserName},function(err,res)
+				 UserModel.findOne({userName:givenUserName}).then(function(err,res)
 				  {
-					if(err)
-					{
-					  reject(err);
-					}
+					 
 					if(res)
 						accept(res);
 					else
 						accept(ErrorCodes.userNotFound);
-				  });
+				  }).catch(reject);
 			}
 			catch(err)
 			{

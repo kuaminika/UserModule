@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var counter = require('./Counter');
+var Counter = require('./Counter');
 
 var schemaDetails = {
     id: {type: Number, unique:true},
@@ -11,11 +11,16 @@ var SaltSchema = new mongoose.Schema(schemaDetails);
 
 SaltSchema.pre('save',function(next){
 	var doc = this;
-	counter.findByIdAndUpdate({_id:'saltId'}, {$inc: { seq: 1} }, function(error, counter)   {
+	Counter.findByIdAndUpdate({_id:'saltId'}, {$inc: { seq: 1} }).then( function( counter)   {
         try{
 		
-			if(error)
-				return next(error);
+			if(!counter)
+			{
+				doc.id = 1;
+				Counter.create({_id:"saltId",seq:1});
+				next();
+				return;
+			}
 			doc.id = counter.seq;
 			next();
 		}
@@ -23,7 +28,7 @@ SaltSchema.pre('save',function(next){
 		{
 			next(err);
 		}
-    });
+    }).catch(next);
 });
 
 

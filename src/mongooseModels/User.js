@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var counter = require('./Counter');
+var Counter = require('./Counter');
 
 var schemaDetails = {
     id: {type: Number,unique:true},
@@ -15,11 +15,17 @@ var UserSchema = new mongoose.Schema(schemaDetails);
 
 UserSchema.pre('save',function(next){
 	var doc = this;
-	counter.findByIdAndUpdate({_id:'userId'}, {$inc: { seq: 1} }, function(error, counter)   {
+	Counter.findByIdAndUpdate({_id:'userId'}, {$inc: { seq: 1} }).then( function( counter)   {
         try{
-		
-			if(error)
-				return next(error);
+
+			console.log("counter found",counter);
+			if(!counter)
+			{
+				doc.id = 1;
+				Counter.create({_id:"userId",seq:1});
+				next();
+				return;
+			}
 			doc.id = counter.seq;
 			next();
 		}
@@ -27,7 +33,7 @@ UserSchema.pre('save',function(next){
 		{
 			next(err);
 		}
-    });
+    }).catch(next);
 });
 
 

@@ -37,8 +37,8 @@ var UserAPI = function(router)
 			var handler = new APIHandler(req,res);
 			try
 			{
-				console.log(req.body);
-				var newUsr  = req.body.newUser
+				console.log("inside UserAPI.registerUser ",req.body);
+				var newUsr  = req.body.newUser;
 				newUsr.memberSince = new Date();
 				service.add(newUsr).then(function(result)
 				{

@@ -1,18 +1,24 @@
 'use strict';
 var fs = require('fs');
 var express = require('express');
+const dotenv = require('dotenv');
+
 var parser = require('body-parser');
 var router = require('./api');
 var http = require('http');
-var https = require('https');
+//var https = require('https');
 
+/*
 var privateKey  = fs.readFileSync('sslcert/privkey.pem', 'utf8');
 var certificate = fs.readFileSync('sslcert/cert.pem', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
+var credentials = {key: privateKey, cert: certificate};*/
 //var TokenValidator = require('./api/apiUtils/TokenValidator');
 var timeout = require('connect-timeout'); //express v4
 var port = 3012
 var app = express();
+
+dotenv.config();
+
 
 //require('./database');
 require('./testDatabase');
@@ -23,6 +29,7 @@ app.use('/', express.static( __dirname+'/public'));
 
 // Add headers
 app.use(function (req, res, next) {
+    console.log("inside the use:",req.body)
 
     // Website you wish to allow to connect
 	res.setHeader('Access-Control-Allow-Origin',req.headers.origin || "*");
@@ -59,8 +66,8 @@ app.listen(port, function() {
 });
 
 var httpServer = http.createServer(app);
-var httpsServer = https.createServer(credentials, app);
-
+// var httpsServer = https.createServer(credentials, app);
+/*
 httpsServer.listen(8443,function() {
     console.log("The https server is running on port "+8443+"!");
-});
+});*/
